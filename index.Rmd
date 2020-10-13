@@ -1,0 +1,79 @@
+---
+title: "Maestría en Logística y Cadena de Suministro"
+subtitle: "Situación actual de los alumnos"
+author: "Julio César Ramírez Pacheco"
+date: "13/10/2020"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+    cards: false
+---
+
+
+```{r knitr_init, echo=FALSE, message=FALSE, warning=FALSE, cache=FALSE}
+library(knitr)
+library(dplyr)
+library(rmdformats)
+library(highcharter)
+library(readxl)
+library(kableExtra)
+## Global options
+options(max.print="75")
+opts_chunk$set(echo=TRUE,
+	             cache=TRUE,
+               prompt=FALSE,
+               tidy=TRUE,
+               comment=NA,
+               message=FALSE,
+               warning=FALSE)
+opts_knit$set(width=75)
+```
+
+# Maestría en logística y cadena de suministros
+
+La maestría en logística y cadena de suministro forma parte del sistema de posgrado de la Universidad del Caribe. Desde su creación ha tenido cuatro generaciones con un total de $25$ alumnos. La siguiente tabla muestra los datos de los estudiantes y su situación y pertenencia a las generaciones.
+
+```{r data, echo=FALSE, message=FALSE, warning=FALSE}
+datosM <- read_excel("datos.xlsx")
+names(datosM) <- c("No", "Matricula", "Estudiante", "Plan", "Generacion", "Estado", "Situacion", "Ingreso", "Historial")
+datosM$Generacion[datosM$Generacion == "PRIMERA"] <- "Primera"
+datosM$Generacion[datosM$Generacion == "TERCERA"] <- "Tercera"
+datosM$Generacion[datosM$Generacion == "SEGUNDA"] <- "Segunda"
+datosM %>% select(Estudiante, Generacion:Situacion) %>% kbl() %>% kable_paper("hover", full_width = F)
+```
+
+
+# Alumnos por generación
+
+El siguiente gráfico muestra el número de estudiantes por generación de la maestría en logística y cadena de suministro (MLCS). Se puede notar que la primera generación ha sido la más numerosa y posteriormente en la tercera y cuarta se ha mantenido el número de estudiantes a por lo menos $6$.
+
+```{r echo=FALSE}
+dm <- datosM %>% group_by(Generacion) %>% summarise(Número = n()) 
+dm <- dm[c(2,3,4,1),]
+dm %>%  hchart("column", hcaes(x = Generacion, y = Número)) %>% hc_size(width = 600, height = 400) %>%
+  hc_add_theme(hc_theme_ffx()) %>% hc_title(text = "Número de alumnos por generación") %>%  hc_subtitle(
+    text = "Maestría en Logística y Cadena de Suministro") %>% hc_colors("#e76f51")
+
+```
+El estado de los alumnos de la maestría en logística y cadena de suministro es el siguiente:
+
+
+```{r status, echo=FALSE}
+datosM %>% group_by(Estado) %>% summarise(Número = n())  %>%  hchart("column", hcaes(x = Estado, y = Número)) %>% hc_size(width = 600, height = 400) %>%
+  hc_add_theme(hc_theme_ffx()) %>% hc_title(text = "Estado de los alumnos MLCS") %>%  hc_subtitle(
+    text = "Maestría en Logística y Cadena de Suministro") %>% hc_colors("#e76f51")
+```
+
+# Situación de estudiantes ante COVID-19
+
+La pandemia por Covid-19 ha generado estragos en la economía de los estudiantes de la maestría MLCS, por lo que a continuación se muestra el número de estudiantes inscritos y en estado de baja temporal debido a los estragos que ha causado la pandemia por Covid-19.
+
+```{r echo=FALSE}
+datosM %>% filter(Generacion == "Cuarta") %>% select(Estudiante, Generacion:Situacion)  %>% group_by(Estado) %>% summarise(Número = n()) %>%  hchart("column", hcaes(x = Estado, y = Número)) %>% hc_size(width = 600, height = 400) %>%
+  hc_add_theme(hc_theme_ffx()) %>% hc_title(text = "Estado de los alumnos MLCS / Covid-19") %>%  hc_subtitle(
+    text = "Maestría en Logística y Cadena de Suministro") %>% hc_colors("#e76f51")
+
+```
+
+Es importante hacer notar que a todos los estudiantes se les notificó sobre el programa _Que nadie se quede fuera_ de la universidad del caribe pero aún así sólo se logró inscribir un estudiante a Otoño 2020. Se espera que durante el ciclo primavera 2021 éstos estudiantes retornen a la maestría en logística.
+
